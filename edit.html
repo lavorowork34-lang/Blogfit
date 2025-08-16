@@ -848,12 +848,11 @@
         'Lifestyle'
       ],
       portfolio: [
-        'Sviluppo Web',
-        'Design',
-        'Tecnologia',
-        'Progetti',
-        'App Mobile',
-        'UI/UX'
+        'Fitness & Salute',
+        'Nutrizione',
+        'Allenamento',
+        'Benessere',
+        'Lifestyle'
       ]
     };
 
@@ -984,7 +983,7 @@
         if (insertedId) {
           // Salva ultimo ID pubblicato e reindirizza alla home del blog con query param
           localStorage.setItem('lastArticleId', String(insertedId));
-          window.location.href = '../blog user/i.html?articleId=' + encodeURIComponent(String(insertedId));
+          window.location.href = 'index.html?articleId=' + encodeURIComponent(String(insertedId));
         }
       });
 
@@ -1480,3 +1479,4 @@
 </body>
 
 </html>
+
