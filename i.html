@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Portfolio</title>
+    <link rel="stylesheet" href="g.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+      const supabaseUrl = 'https://aislcwzvooojemjizkhy.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpc2xjd3p2b29vamVtaml6a2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxNjMzOTgsImV4cCI6MjA3MDczOTM5OH0.BYGmgaqeu7bUhdW228JjlC9-x-9A9nVszibkuIBu63A';
+      window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+    <script src="funx.js"></script>
+    <script src="supabase-sync.js" type="module"></script>
+</head>
+
+<body>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Portfolio</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#blog" class="nav-link">Blog</a></li>
+                <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-controls">
+                <div class="theme-toggle">
+                    <button id="theme-toggle" class="theme-btn" aria-label="Toggle light and dark mode">
+                        <span class="material-icons sun-icon" aria-hidden="true">light_mode</span>
+                        <span class="material-icons moon-icon" aria-hidden="true">dark_mode</span>
+                    </button>
+                </div>
+                <button class="hamburger" id="hamburger-menu" aria-label="Toggle mobile menu">
+                    <span class="line"></span>
+                    <span class="line"></span>
+                    <span class="line"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content hero-flex">
+                <div class="hero-image">
+                    <img src="https://via.placeholder.com/400x250" alt="Designer Image" />
+                </div>
+                <div class="hero-text">
+                    <h1 class="hero-title small">Ciao, sono il <span class="highlight">Dott. Gianlorenzo Malvasi</span></h1>
+                    <p class="hero-subtitle small">Trasformo le persone guidandole verso la loro versione migliore,
+                        unendo nutrizione scientifica,
+                        allenamento personalizzato e coaching motivazionale.</p>
+                    <div class="hero-buttons">
+                        <a href="#portfolio" class="btn btn-primary">Vedi Portfolio</a>
+                        <a href="#blog" class="btn btn-secondary">Leggi Blog</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2 class="section-title">About</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Sono un Biologo Nutrizionista e Personal Trainer specializzato nella trasformazione fisica e
+                            mentale delle persone. Con anni di esperienza tra scienza
+                            dell’alimentazione e allenamento mirato, progetto percorsi personalizzati per risultati
+                            reali e duraturi.</p>
+                        <p>Il mio approccio unisce metodo scientifico, strategia nutrizionale e coaching motivazionale,
+                            mettendo sempre il benessere della persona al centro di ogni scelta.</p>
+                    </div>
+                    <div class="skills">
+                        <h3>Skills</h3>
+                        <div class="skills-grid">
+                            <span class="skill-tag">Chinesiologia</span>
+                            <span class="skill-tag">Prevenzione Infortuni</span>
+                            <span class="skill-tag">Adattamento allo Sport</span>
+                            <span class="skill-tag">Posturologia Clinica</span>
+                            <span class="skill-tag">Nutrizione Sportiva</span>
+                            <span class="skill-tag">Personal Training</span>
+                            <span class="skill-tag">Preparazione Atletica</span>
+                            <span class="skill-tag">Stretch & Mobility Training</span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metodo di Dimagrimento Section -->
+        <section id="metodo-dimagrimento" class="metodo-section">
+            <div class="container">
+                <h2 class="section-title">Il mio metodo di dimagrimento</h2>
+                <div class="metodo-header">
+                    <h3 class="metodo-subtitle">Metodo "Macro – Balance – Sinergy"</h3>
+                    <div class="metodo-info">
+                        <p><strong>Inventore:</strong> Dott. Gianlorenzo Malvasi</p>
+                        <p><strong>Anno di ideazione:</strong> 2024</p>
+                        <p><strong>Campo dell'invenzione:</strong> Nutrizione sportiva, allenamento personalizzato, metodologie integrate di benessere.</p>
+                    </div>
+                </div>
+
+                <div class="metodo-abstract">
+                    <p>Il presente metodo innovativo, denominato <strong>Macro – Balance – Sinergy</strong>, riguarda un sistema integrato per 
+                    l'ottimizzazione della composizione corporea, della salute metabolica e della performance fisica.</p>
+                </div>
+
+                <div class="metodo-accordion">
+                    <div class="accordion-item">
+                        <button class="accordion-header" data-module="macro">
+                            <span class="module-number">1</span>
+                            <span class="module-title">MACRO</span>
+                            <span class="module-description">Pianificazione e bilanciamento personalizzato dei macronutrienti</span>
+                            <span class="accordion-icon">
+                                <i class="material-icons">expand_more</i>
+                            </span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="module-content">
+                                <h4>Analisi del fabbisogno calorico e ripartizione personalizzata dei macronutrienti</h4>
+                                <p>Il corretto bilanciamento di proteine, carboidrati e grassi è essenziale per il raggiungimento di risultati 
+                                duraturi in termini di composizione corporea e salute metabolica.</p>
+                                <ul>
+                                    <li><strong>Proteine:</strong> 1,4–2,2 g/kg per stimolare la sintesi proteica muscolare</li>
+                                    <li><strong>Carboidrati:</strong> Fonte primaria di energia per allenamenti ad alta intensità</li>
+                                    <li><strong>Grassi:</strong> 0,8–1,2 g/kg per produzione ormonale e assorbimento vitamine</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" data-module="balance">
+                            <span class="module-number">2</span>
+                            <span class="module-title">BALANCE</span>
+                            <span class="module-description">Equilibrio tra nutrizione, attività fisica e recupero fisiologico</span>
+                            <span class="accordion-icon">
+                                <i class="material-icons">expand_more</i>
+                            </span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="module-content">
+                                <h4>Integrazione tra nutrizione e allenamento per mantenere equilibrio ormonale</h4>
+                                <p>L'equilibrio tra nutrizione, allenamento e recupero è cruciale per mantenere la funzionalità endocrina, 
+                                prevenire il catabolismo e ottimizzare l'omeostasi metabolica.</p>
+                                <div class="balance-grid">
+                                    <div class="balance-item">
+                                        <i class="material-icons">schedule</i>
+                                        <span>Gestione del tempo di recupero</span>
+                                    </div>
+                                    <div class="balance-item">
+                                        <i class="material-icons">trending_up</i>
+                                        <span>Monitoraggio progressi</span>
+                                    </div>
+                                    <div class="balance-item">
+                                        <i class="material-icons">healing</i>
+                                        <span>Prevenzione infortuni</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header" data-module="sinergy">
+                            <span class="module-number">3</span>
+                            <span class="module-title">SINERGY</span>
+                            <span class="module-description">Sinergia tra piani alimentari e protocolli di allenamento</span>
+                            <span class="accordion-icon">
+                                <i class="material-icons">expand_more</i>
+                            </span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="module-content">
+                                <h4>Coordinamento continuo tra nutrizione e attività fisica</h4>
+                                <p>L'interazione tra stimolo allenante e nutrizione mirata crea un effetto moltiplicativo sugli adattamenti 
+                                fisiologici, massimizzando recupero e crescita muscolare.</p>
+                                <div class="sinergy-process">
+                                    <div class="process-step">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h5>Anamnesi iniziale</h5>
+                                            <p>Raccolta dati antropometrici e valutazione stile di vita</p>
+                                        </div>
+                                    </div>
+                                    <div class="process-step">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h5>Definizione obiettivi</h5>
+                                            <p>Stabiliti insieme al cliente</p>
+                                        </div>
+                                    </div>
+                                    <div class="process-step">
+                                        <div class="step-number">3</div>
+                                        <div class="step-content">
+                                            <h5>Monitoraggio</h5>
+                                            <p>Controllo periodico dei progressi</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metodo-scientific">
+                    <button class="scientific-toggle">
+                        <span>Approfondimento Scientifico</span>
+                        <i class="material-icons">science</i>
+                    </button>
+                    <div class="scientific-content">
+                        <h4>Validazione Scientifica del Metodo</h4>
+                        <p>Questo documento integra la descrizione tecnica del metodo con spiegazioni scientifiche basate su fisiologia, 
+                        nutrizione e biochimica, per supportare la validità del protocollo.</p>
+                        
+                        <div class="scientific-grid">
+                            <div class="scientific-item">
+                                <h5>Modello Operativo con Feedback</h5>
+                                <p>Sistema di valutazione e adattamento ciclico basato su parametri antropometrici e performance</p>
+                            </div>
+                            <div class="scientific-item">
+                                <h5>Vantaggi Scientificamente Supportati</h5>
+                                <ul>
+                                    <li>Preservazione massa muscolare in deficit calorico</li>
+                                    <li>Miglioramento sensibilità insulinica</li>
+                                    <li>Prevenzione effetto yo-yo</li>
+                                    <li>Protezione funzione ormonale</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--Sezione recensioni-->
+        <!-- Elfsight Google Reviews | Untitled Google Reviews -->
+         <br><br>
+        <script src="https://static.elfsight.com/platform/platform.js" async></script>
+        <div class="elfsight-app-c4665f44-05f7-4d90-b118-deb134f037f7" data-elfsight-app-lazy></div>
+
+
+
+        <section id="blog" class="blog">
+            <div class="container">
+                <h2 class="section-title">Blog</h2>
+                <p class="section-subtitle">Articoli e riflessioni sulle scienze dell'alimentazione e dell'allenamento</p>
+                <div class="blog-slider-container">
+                    <div class="blog-grid" id="blog-articles">
+                        <!-- Gli articoli del blog verranno inseriti qui -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="portfolio">
+            <div class="container">
+                <h2 class="section-title">Portfolio</h2>
+                <p class="section-subtitle">Una selezione dei miei pazienti recenti</p>
+                <div class="portfolio-slider-container">
+                    <div class="portfolio-grid" id="portfolio-items">
+                        <!-- Gli articoli del portfolio verranno inseriti qui -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Hero Section: Download App -->
+        <section id="download-app" class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1><span class="highlight">Potenzia</span> il tuo allenamento</h1>
+                    <p class="subtitle">
+                        Scopri la nuova app di fitness pensata per trasformare il tuo corpo e la tua mente.<br>
+                        Traccia, migliora e supera i tuoi limiti con tecnologia avanzata.
+                    </p>
+                    <div class="download-section">
+                        <div class="download-buttons">
+                            <a href="#" class="download-btn ios">
+                                <img src="img/apple-icon.png" alt="Apple Icon" class="os-icon" />
+                                Scarica su App Store
+                            </a>
+                            <a href="#" class="download-btn android">
+                                <img src="img/google-play-icon.png" alt="Google Play Icon" class="os-icon" />
+                                Disponibile su Google Play
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="immagini app\finalefit.png" alt="Mockup App Fitness">
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2 class="section-title">Contatti</h2>
+                <p class="section-subtitle">Hai un nuovo corpo e una nuova psiche in mente? Parliamone</p>
+                <div class="contact-content">
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Messaggio</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Invia Messaggio</button>
+                    </form>
+                    <div class="contact-info">
+                        <h3>Informazioni</h3>
+                        <p>Disponibile per progetti freelance e collaborazioni</p>
+                        <div class="contact-links">
+                            <a href="mailto:hello@designer.com">hello@designer.com</a>
+                            <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+                            <a href="https://behance.net" target="_blank">Behance</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Portfolio. Tutti i diritti riservati.</p>
+                <p>Disponibile per i pazienti 24h a 360 gradi</p>
+            </div>
+            <div class="footer-social">
+                <a href="mailto:hello@designer.com" aria-label="Email">hello@designer.com</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+                <a href="https://behance.net" target="_blank" rel="noopener" aria-label="Behance">Behance</a>
+                 <a href="https://macrobalancesinergy.com/home" >PRENOTA ORA LA TUA CONSULENZA</a>
+            </div>
+        </div>
+    </footer>

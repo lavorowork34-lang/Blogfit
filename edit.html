@@ -1,0 +1,1482 @@
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editor di Testo Dark/Light</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+
+    /* --- Responsive CSS (using Media Queries) --- */
+
+    /* For screens smaller than 768px (typical for tablets and mobiles) */
+    @media (max-width: 767px) {
+      body {
+        padding: 1rem;
+        /* Reduce padding on smaller screens */
+      }
+
+      #editor-container {
+        padding: 1rem;
+        /* Reduce container padding */
+      }
+
+      /* Adjust header layout for smaller screens */
+      .flex.justify-between.items-center.mb-5 {
+        flex-direction: column;
+        /* Stack items vertically */
+        align-items: flex-start;
+        /* Align to the start */
+        gap: 1rem;
+        /* Add some space between stacked items */
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        /* Smaller heading */
+      }
+
+      /* Make toolbar buttons potentially smaller or stack them more efficiently */
+      #toolbar {
+        gap: 0.5rem;
+        /* Reduce gap between toolbar buttons */
+        justify-content: center;
+        /* Center buttons when they wrap */
+      }
+
+      .toolbar-btn {
+        padding: 0.6rem;
+        /* Slightly smaller padding for buttons */
+      }
+
+      #publish-btn {
+        padding: 0.75rem 1.25rem;
+        /* Adjust publish button padding */
+        font-size: 0.9rem;
+        /* Smaller font for publish button */
+      }
+
+      /* Adjust modals for full-width on smaller screens */
+      #link-modal>div,
+      #image-modal>div {
+        width: 90%;
+        /* Make modal content wider */
+        padding: 1rem;
+        /* Reduce modal padding */
+      }
+    }
+
+    /* For screens smaller than 640px (typical for small phones) */
+    @media (max-width: 639px) {
+      #editor {
+        min-height: 300px;
+        /* Reduce editor height on very small screens */
+        font-size: 1rem;
+        /* Smaller font in editor */
+        padding: 1rem;
+        /* Adjust editor padding */
+      }
+    }
+  </style>
+</head>
+
+
+<body class="min-h-screen flex items-center justify-center p-6 bg-[#0a0a0a] text-white transition-colors duration-500"
+  style="--scrollbar-thumb:#14b8a6; --scrollbar-track:#1e1e1e;">
+  <div id="editor-container"
+    class="relative w-full max-w-5xl rounded-3xl shadow-lg p-6 bg-gradient-to-r from-[#1e1e1e] to-[#2a2a2a] backdrop-blur-md transition-colors duration-500">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-5">
+      <h1 class="text-white font-semibold text-2xl select-none flex items-center space-x-3">
+        <i class="fas fa-edit text-[#14b8a6]"></i>
+        <span>Editor di Testo</span>
+      </h1>
+      <div class="flex items-center space-x-4">
+        <!-- Dark/Light toggle -->
+        <button id="mode-toggle" aria-label="Toggle Light/Dark Mode"
+          class="text-gray-400 hover:text-[#14b8a6] transition-colors duration-300 text-xl" title="Modalità Light/Dark">
+          <i class="fas fa-moon"></i>
+        </button>
+        <!-- Navigation buttons -->
+        <div class="flex items-center space-x-3">
+          <a href="../blog user/index.html"
+            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-colors duration-300 flex items-center space-x-2"
+            title="Torna al blog">
+            <i class="fas fa-arrow-left"></i>
+            <span>Blog</span>
+          </a>
+          <!-- Manage Articles button -->
+          <button id="manage-articles-btn"
+            class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-full shadow-md transition-colors duration-300 flex items-center space-x-2"
+            title="Gestisci articoli esistenti">
+            <i class="fas fa-list"></i>
+            <span>Gestisci</span>
+          </button>
+          <!-- Publish button -->
+          <button id="publish-btn"
+            class="bg-[#14b8a6] hover:bg-[#0f766e] text-black font-semibold py-2 px-6 rounded-full shadow-md transition-colors duration-300 flex items-center space-x-2"
+            title="Pubblica il contenuto">
+            <i class="fas fa-upload"></i>
+            <span>Pubblica</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div id="toolbar" class="flex flex-wrap gap-3 mb-4 text-gray-400 select-none" role="toolbar"
+      aria-label="Editor toolbar">
+      <button type="button" data-command="bold" class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200"
+        title="Grassetto (Ctrl+B)" aria-label="Grassetto">
+        <i class="fas fa-bold"></i>
+      </button>
+      <button type="button" data-command="italic"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Corsivo (Ctrl+I)"
+        aria-label="Corsivo">
+        <i class="fas fa-italic"></i>
+      </button>
+      <button type="button" data-command="underline"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Sottolineato (Ctrl+U)"
+        aria-label="Sottolineato">
+        <i class="fas fa-underline"></i>
+      </button>
+      <button type="button" data-command="strikeThrough"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Barrato" aria-label="Barrato">
+        <i class="fas fa-strikethrough"></i>
+      </button>
+      <button type="button" data-command="insertOrderedList"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Lista ordinata"
+        aria-label="Lista ordinata">
+        <i class="fas fa-list-ol"></i>
+      </button>
+      <button type="button" data-command="insertUnorderedList"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Lista puntata"
+        aria-label="Lista puntata">
+        <i class="fas fa-list-ul"></i>
+      </button>
+      <button type="button" data-command="justifyLeft"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Allinea a sinistra"
+        aria-label="Allinea a sinistra">
+        <i class="fas fa-align-left"></i>
+      </button>
+      <button type="button" data-command="justifyCenter"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Allinea al centro"
+        aria-label="Allinea al centro">
+        <i class="fas fa-align-center"></i>
+      </button>
+      <button type="button" data-command="justifyRight"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Allinea a destra"
+        aria-label="Allinea a destra">
+        <i class="fas fa-align-right"></i>
+      </button>
+      <button type="button" data-command="undo" class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200"
+        title="Annulla (Ctrl+Z)" aria-label="Annulla">
+        <i class="fas fa-undo"></i>
+      </button>
+      <button type="button" data-command="redo" class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200"
+        title="Ripristina (Ctrl+Y)" aria-label="Ripristina">
+        <i class="fas fa-redo"></i>
+      </button>
+      <button type="button" id="insert-link-btn" class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200"
+        title="Inserisci link" aria-label="Inserisci link">
+        <i class="fas fa-link"></i>
+      </button>
+      <button type="button" id="insert-image-btn"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200" title="Inserisci immagine"
+        aria-label="Inserisci immagine">
+        <i class="fas fa-image"></i>
+      </button>
+      <button type="button" id="insert-main-image-btn"
+        class="toolbar-btn hover:text-[#14b8a6] transition-colors duration-200"
+        title="Inserisci immagine principale articolo" aria-label="Inserisci immagine principale">
+        <i class="fas fa-image"></i>
+        <span class="text-xs ml-1">Main</span>
+      </button>
+    </div>
+
+    <!-- Editable content area -->
+    <div id="editor" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true"
+      class="w-full min-h-[400px] rounded-xl p-5 bg-[#121212] text-white text-lg outline-none shadow-inner overflow-auto"
+      placeholder="Inizia a scrivere qui..."></div>
+  </div>
+
+  <!-- Modal for inserting link -->
+  <div id="link-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
+    <div class="bg-[#1e1e1e] rounded-xl p-6 w-96 max-w-full shadow-lg">
+      <h2 id="link-modal-title" class="text-white text-xl font-semibold mb-4">
+        Inserisci Link
+      </h2>
+      <input id="link-input" type="url" placeholder="https://esempio.com"
+        class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]" />
+      <div class="mt-5 flex justify-end space-x-3">
+        <button id="link-cancel" class="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition">
+          Annulla
+        </button>
+        <button id="link-insert"
+          class="px-4 py-2 rounded-md bg-[#14b8a6] text-black font-semibold hover:bg-[#0f766e] transition">
+          Inserisci
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for inserting image -->
+  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
+    <div class="bg-[#1e1e1e] rounded-xl p-6 w-96 max-w-full shadow-lg">
+      <h2 id="image-modal-title" class="text-white text-xl font-semibold mb-4">
+        Inserisci Immagine
+      </h2>
+
+      <!-- Tab buttons -->
+      <div class="flex mb-4 bg-[#121212] rounded-lg p-1">
+        <button id="url-tab"
+          class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 bg-[#14b8a6] text-black">
+          URL
+        </button>
+        <button id="upload-tab"
+          class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 text-gray-400 hover:text-white">
+          Upload
+        </button>
+      </div>
+
+      <!-- URL input (default visible) -->
+      <div id="url-input-container" class="mb-4">
+        <input id="image-input" type="url" placeholder="https://esempio.com/immagine.jpg"
+          class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]" />
+      </div>
+
+      <!-- File upload (hidden by default) -->
+      <div id="file-input-container" class="mb-4 hidden">
+        <div class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
+          <input id="file-input" type="file" accept="image/*" class="hidden" />
+          <div id="drop-zone" class="cursor-pointer">
+            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+            <p class="text-gray-400 mb-2">Clicca per selezionare o trascina un'immagine qui</p>
+            <p class="text-sm text-gray-500">PNG, JPG, GIF fino a 10MB</p>
+          </div>
+          <div id="file-preview" class="hidden mt-4">
+            <img id="preview-image" class="max-w-full h-32 object-cover rounded-md mx-auto" />
+            <p id="file-name" class="text-sm text-gray-400 mt-2"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end space-x-3">
+        <button id="image-cancel" class="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition">
+          Annulla
+        </button>
+        <button id="image-insert"
+          class="px-4 py-2 rounded-md bg-[#14b8a6] text-black font-semibold hover:bg-[#0f766e] transition">
+          Inserisci
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for article details -->
+  <div id="article-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
+    <div class="bg-[#1e1e1e] rounded-xl p-6 w-96 max-w-full shadow-lg">
+      <h2 id="article-modal-title" class="text-white text-xl font-semibold mb-4">
+        Dettagli Articolo
+      </h2>
+
+      <div class="space-y-4">
+        <div>
+          <label for="article-title" class="block text-sm font-medium text-gray-300 mb-2">Titolo</label>
+          <input id="article-title" type="text" placeholder="Inserisci il titolo dell'articolo"
+            class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+            required />
+        </div>
+
+        <div>
+          <label for="article-section" class="block text-sm font-medium text-gray-300 mb-2">Pubblica in</label>
+          <select id="article-section"
+            class="w-full p-3 rounded-md bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-[#14b8a6]">
+            <option value="blog">Blog</option>
+            <option value="portfolio">Portfolio</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="article-category" class="block text-sm font-medium text-gray-300 mb-2">Categoria</label>
+          <select id="article-category"
+            class="w-full p-3 rounded-md bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-[#14b8a6]">
+            <!-- Categories will be populated dynamically based on selected section -->
+          </select>
+        </div>
+
+        <div>
+          <label for="article-author" class="block text-sm font-medium text-gray-300 mb-2">Autore</label>
+          <input id="article-author" type="text" placeholder="Nome dell'autore" value="Gianlorenzo Malvasi"
+            class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]" />
+        </div>
+
+        <div>
+          <label for="article-excerpt" class="block text-sm font-medium text-gray-300 mb-2">Estratto</label>
+          <textarea id="article-excerpt" placeholder="Breve descrizione dell'articolo..." rows="3"
+            class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end space-x-3">
+        <button id="article-cancel" class="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition">
+          Annulla
+        </button>
+        <button id="article-publish"
+          class="px-4 py-2 rounded-md bg-[#14b8a6] text-black font-semibold hover:bg-[#0f766e] transition">
+          Pubblica
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for managing existing articles -->
+  <div id="manage-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="manage-modal-title">
+    <div class="bg-[#1e1e1e] rounded-xl p-6 w-full max-w-4xl max-h-[80vh] shadow-lg overflow-hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="manage-modal-title" class="text-white text-xl font-semibold">
+          Gestisci Articoli
+        </h2>
+        <button id="manage-close" class="text-gray-400 hover:text-white transition-colors duration-200">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Section tabs -->
+      <div class="flex mb-4 bg-[#121212] rounded-lg p-1">
+        <button id="blog-tab"
+          class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 bg-[#14b8a6] text-black">
+          Blog (<span id="blog-count">0</span>)
+        </button>
+        <button id="portfolio-tab"
+          class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 text-gray-400 hover:text-white">
+          Portfolio (<span id="portfolio-count">0</span>)
+        </button>
+      </div>
+
+      <!-- Articles list -->
+      <div class="overflow-y-auto max-h-[50vh]">
+        <div id="articles-list" class="space-y-3">
+          <!-- Articles will be populated here -->
+        </div>
+        <div id="no-articles" class="text-center text-gray-400 py-8 hidden">
+          <i class="fas fa-file-alt text-4xl mb-4"></i>
+          <p>Nessun articolo trovato in questa sezione.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation modal for deletion -->
+  <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="bg-[#1e1e1e] rounded-xl p-6 w-96 max-w-full shadow-lg">
+      <h2 id="delete-modal-title" class="text-white text-xl font-semibold mb-4">
+        Conferma Eliminazione
+      </h2>
+      <p class="text-gray-300 mb-6">
+        Sei sicuro di voler eliminare questo articolo? Questa azione non può essere annullata.
+      </p>
+      <div class="flex justify-end space-x-3">
+        <button id="delete-cancel" class="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition">
+          Annulla
+        </button>
+        <button id="delete-confirm"
+          class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition">
+          Elimina
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form per articolo -->
+  <form id="articoloForm" class="hidden">
+    <div class="space-y-4">
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-300 mb-2">Titolo</label>
+        <input id="title" type="text" placeholder="Inserisci il titolo dell'articolo"
+          class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+          required />
+      </div>
+
+      <div>
+        <label for="content" class="block text-sm font-medium text-gray-300 mb-2">Contenuto</label>
+        <textarea id="content" placeholder="Contenuto dell'articolo..." rows="10"
+          class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"></textarea>
+      </div>
+
+      <div>
+        <label for="author" class="block text-sm font-medium text-gray-300 mb-2">Autore</label>
+        <input id="author" type="text" placeholder="Nome dell'autore" value="Gianlorenzo Malvasi"
+          class="w-full p-3 rounded-md bg-[#121212] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]" />
+      </div>
+
+      <div>
+        <label for="category" class="block text-sm font-medium text-gray-300 mb-2">Categoria</label>
+        <select id="category"
+          class="w-full p-3 rounded-md bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-[#14b8a6]">
+          <option value="Fitness & Salute">Fitness & Salute</option>
+          <option value="Nutrizione">Nutrizione</option>
+          <option value="Allenamento">Allenamento</option>
+          <option value="Benessere">Benessere</option>
+          <option value="Lifestyle">Lifestyle</option>
+        </select>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-[#14b8a6] hover:bg-[#0f766e] text-black font-semibold py-3 px-6 rounded-full shadow-md transition-colors duration-300">
+        Salva Articolo
+      </button>
+    </div>
+  </form>
+
+  <!-- Messaggio di stato -->
+  <div id="messageBox" class="mt-4 p-4 rounded-md text-sm text-center hidden"></div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabaseUrl = 'https://aislcwzvooojemjizkhy.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpc2xjd3p2b29vamVtaml6a2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxNjMzOTgsImV4cCI6MjA3MDczOTM5OH0.BYGmgaqeu7bUhdW228JjlC9-x-9A9nVszibkuIBu63A';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+
+    // Global variables
+    let currentImageSrc = '';
+    let uploadedImages = [];
+    let currentImageMode = 'content'; // 'content' for article images, 'main' for main article image
+    let mainArticleImage = null;
+
+    // Toolbar buttons functionality
+    const editor = document.getElementById('editor');
+    const toolbarButtons = document.querySelectorAll('.toolbar-btn');
+
+    toolbarButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const command = btn.dataset.command;
+        if (command === 'insertOrderedList' || command === 'insertUnorderedList' || command === 'bold' || command === 'italic' || command === 'underline' || command === 'strikeThrough' || command === 'justifyLeft' || command === 'justifyCenter' || command === 'justifyRight' || command === 'undo' || command === 'redo') {
+          document.execCommand(command, false, null);
+          editor.focus();
+        }
+      });
+    });
+
+    // Insert link modal
+    const linkModal = document.getElementById('link-modal');
+    const linkInput = document.getElementById('link-input');
+    const insertLinkBtn = document.getElementById('insert-link-btn');
+    const linkInsert = document.getElementById('link-insert');
+    const linkCancel = document.getElementById('link-cancel');
+
+    insertLinkBtn.addEventListener('click', () => {
+      linkInput.value = '';
+      linkModal.classList.remove('hidden');
+      linkInput.focus();
+    });
+
+    linkCancel.addEventListener('click', () => {
+      linkModal.classList.add('hidden');
+    });
+
+    linkInsert.addEventListener('click', () => {
+      const url = linkInput.value.trim();
+      if (url) {
+        document.execCommand('createLink', false, url);
+      }
+      linkModal.classList.add('hidden');
+      editor.focus();
+    });
+
+    // Insert image modal with tabs
+    const imageModal = document.getElementById('image-modal');
+    const imageInput = document.getElementById('image-input');
+    const insertImageBtn = document.getElementById('insert-image-btn');
+    const insertMainImageBtn = document.getElementById('insert-main-image-btn');
+    const imageInsert = document.getElementById('image-insert');
+    const imageCancel = document.getElementById('image-cancel');
+    const urlTab = document.getElementById('url-tab');
+    const uploadTab = document.getElementById('upload-tab');
+    const urlInputContainer = document.getElementById('url-input-container');
+    const fileInputContainer = document.getElementById('file-input-container');
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const filePreview = document.getElementById('file-preview');
+    const previewImage = document.getElementById('preview-image');
+    const fileName = document.getElementById('file-name');
+
+    // Tab switching
+    urlTab.addEventListener('click', () => {
+      urlTab.classList.add('bg-[#14b8a6]', 'text-black');
+      urlTab.classList.remove('text-gray-400');
+      uploadTab.classList.remove('bg-[#14b8a6]', 'text-black');
+      uploadTab.classList.add('text-gray-400');
+      urlInputContainer.classList.remove('hidden');
+      fileInputContainer.classList.add('hidden');
+      currentImageSrc = '';
+    });
+
+    uploadTab.addEventListener('click', () => {
+      uploadTab.classList.add('bg-[#14b8a6]', 'text-black');
+      uploadTab.classList.remove('text-gray-400');
+      urlTab.classList.remove('bg-[#14b8a6]', 'text-black');
+      urlTab.classList.add('text-gray-400');
+      fileInputContainer.classList.remove('hidden');
+      urlInputContainer.classList.add('hidden');
+      currentImageSrc = '';
+    });
+
+    // File upload functionality
+    dropZone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-[#14b8a6]');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-[#14b8a6]');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-[#14b8a6]');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileUpload(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileUpload(e.target.files[0]);
+      }
+    });
+
+    function handleFileUpload(file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Per favore seleziona un file immagine valido (PNG, JPG, GIF, WebP).');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        alert('Il file è troppo grande. Massimo 10MB.');
+        return;
+      }
+
+      // Show loading state
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = '<p class="text-gray-400">Elaborazione immagine...</p>';
+      filePreview.appendChild(loadingDiv);
+      filePreview.classList.remove('hidden');
+      dropZone.classList.add('hidden');
+
+      // Compress and process image
+      compressImage(file, (compressedDataURL) => {
+        currentImageSrc = compressedDataURL;
+        previewImage.src = currentImageSrc;
+        fileName.textContent = file.name + ' (ottimizzata)';
+
+        // Remove loading state
+        loadingDiv.remove();
+      });
+    }
+
+    function compressImage(file, callback) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = function () {
+        // Calculate new dimensions (max width: 1200px, maintain aspect ratio)
+        let { width, height } = img;
+        const maxWidth = 1200;
+        const maxHeight = 800;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and compress image
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Get compressed data URL (quality: 0.8 for good balance)
+        const compressedDataURL = canvas.toDataURL('image/jpeg', 0.8);
+        callback(compressedDataURL);
+      };
+
+      img.onerror = function () {
+        alert('Errore durante il caricamento dell\'immagine. Riprova.');
+        filePreview.classList.add('hidden');
+        dropZone.classList.remove('hidden');
+      };
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    insertImageBtn.addEventListener('click', () => {
+      currentImageMode = 'content'; // Set mode for content image
+      resetImageModal();
+      imageModal.classList.remove('hidden');
+      imageInput.focus();
+    });
+
+    insertMainImageBtn.addEventListener('click', () => {
+      currentImageMode = 'main'; // Set mode for main image
+      resetImageModal();
+      imageModal.classList.remove('hidden');
+      imageInput.focus();
+    });
+
+    imageCancel.addEventListener('click', () => {
+      imageModal.classList.add('hidden');
+      resetImageModal();
+    });
+
+    function resetImageModal() {
+      currentImageSrc = '';
+      filePreview.classList.add('hidden');
+      dropZone.classList.remove('hidden');
+      imageInput.value = '';
+      fileInput.value = '';
+
+      // Reset tabs to URL
+      urlTab.classList.add('bg-[#14b8a6]', 'text-black');
+      urlTab.classList.remove('text-gray-400');
+      uploadTab.classList.remove('bg-[#14b8a6]', 'text-black');
+      uploadTab.classList.add('text-gray-400');
+      urlInputContainer.classList.remove('hidden');
+      fileInputContainer.classList.add('hidden');
+    }
+
+    imageInsert.addEventListener('click', () => {
+      let imageSrc = '';
+      let altText = '';
+
+      if (!urlInputContainer.classList.contains('hidden')) {
+        // URL tab is active
+        imageSrc = imageInput.value.trim();
+
+        // Validate URL
+        if (imageSrc && !isValidImageURL(imageSrc)) {
+          alert('Per favore inserisci un URL valido per l\'immagine (deve terminare con .jpg, .jpeg, .png, .gif, .webp o essere un link Unsplash/Pixabay valido).');
+          return;
+        }
+
+        // Extract filename for alt text
+        altText = imageSrc.split('/').pop().split('.')[0] || 'Immagine';
+      } else {
+        // Upload tab is active
+        imageSrc = currentImageSrc;
+        altText = fileName.textContent || 'Immagine caricata';
+      }
+
+      // Debug logging
+      console.log('Image insertion attempt:', {
+        mode: currentImageMode,
+        imageSrc: imageSrc ? 'Image source available' : 'No image source',
+        hasSelection: window.getSelection().rangeCount > 0
+      });
+
+      if (imageSrc) {
+        if (currentImageMode === 'main') {
+          // Store main article image
+          mainArticleImage = {
+            src: imageSrc,
+            alt: altText
+          };
+
+          // Show visual feedback that main image was set
+          const mainImageBtn = document.getElementById('insert-main-image-btn');
+          mainImageBtn.classList.add('bg-green-600');
+          mainImageBtn.title = 'Immagine principale impostata ✓';
+
+          // Reset after 2 seconds
+          setTimeout(() => {
+            mainImageBtn.classList.remove('bg-green-600');
+            mainImageBtn.title = 'Inserisci immagine principale articolo';
+          }, 2000);
+
+        } else {
+          // Create image element for content
+          const img = document.createElement('img');
+          img.src = imageSrc;
+          img.alt = altText;
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+          img.loading = 'lazy'; // Add lazy loading
+          img.style.display = 'block';
+          img.style.margin = '10px 0';
+
+          // Focus the editor first to ensure it's the active element
+          editor.focus();
+
+          // Insert image at cursor position
+          const selection = window.getSelection();
+          let inserted = false;
+
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+
+            // Check if the selection is within the editor
+            if (editor.contains(range.commonAncestorContainer) || editor === range.commonAncestorContainer) {
+              range.deleteContents();
+              range.insertNode(img);
+
+              // Add a line break after the image for better UX
+              const br = document.createElement('br');
+              range.setStartAfter(img);
+              range.insertNode(br);
+
+              // Move cursor after line break
+              range.setStartAfter(br);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              inserted = true;
+            }
+          }
+
+          if (!inserted) {
+            // Fallback: append to editor with line breaks
+            const br1 = document.createElement('br');
+            const br2 = document.createElement('br');
+            editor.appendChild(br1);
+            editor.appendChild(img);
+            editor.appendChild(br2);
+
+            // Set cursor after the image
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.setStartAfter(br2);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        }
+
+        // Store uploaded images for potential future use
+        if (currentImageSrc && currentImageSrc.startsWith('data:')) {
+          if (!uploadedImages) uploadedImages = [];
+          uploadedImages.push(currentImageSrc);
+        }
+      }
+
+      // Close modal and reset
+      imageModal.classList.add('hidden');
+      resetImageModal();
+      editor.focus();
+    });
+
+    function isValidImageURL(url) {
+      try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+
+        // Check for common image extensions
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+        const hasImageExtension = imageExtensions.some(ext => pathname.endsWith(ext));
+
+        // Allow known image hosting services
+        const imageHosts = ['unsplash.com', 'pixabay.com', 'pexels.com', 'images.unsplash.com'];
+        const isImageHost = imageHosts.some(host => urlObj.hostname.includes(host));
+
+        return hasImageExtension || isImageHost;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Article modal functionality
+    const articleModal = document.getElementById('article-modal');
+    const articleTitle = document.getElementById('article-title');
+    const articleSection = document.getElementById('article-section');
+    const articleCategory = document.getElementById('article-category');
+    const articleAuthor = document.getElementById('article-author');
+    const articleExcerpt = document.getElementById('article-excerpt');
+    const articleCancel = document.getElementById('article-cancel');
+    const articlePublish = document.getElementById('article-publish');
+
+    // Categories for different sections
+    const categories = {
+      blog: [
+        'Fitness & Salute',
+        'Nutrizione',
+        'Allenamento',
+        'Benessere',
+        'Lifestyle'
+      ],
+      portfolio: [
+        'Sviluppo Web',
+        'Design',
+        'Tecnologia',
+        'Progetti',
+        'App Mobile',
+        'UI/UX'
+      ]
+    };
+
+    // Update categories when section changes
+    articleSection.addEventListener('change', () => {
+      const selectedSection = articleSection.value;
+      const sectionCategories = categories[selectedSection];
+
+      // Clear existing options
+      articleCategory.innerHTML = '';
+
+      // Add new options
+      sectionCategories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        articleCategory.appendChild(option);
+      });
+    });
+
+    // Initialize categories on page load
+    articleSection.dispatchEvent(new Event('change'));
+
+    // Publish button functionality
+    const publishBtn = document.getElementById('publish-btn');
+    publishBtn.addEventListener('click', () => {
+      const content = editor.innerHTML.trim();
+      if (!content) {
+        alert('Il contenuto è vuoto. Scrivi qualcosa prima di pubblicare.');
+        return;
+      }
+
+      // Show article details modal
+      articleModal.classList.remove('hidden');
+      articleTitle.focus();
+    });
+
+    articleCancel.addEventListener('click', () => {
+      articleModal.classList.add('hidden');
+    });
+
+    articlePublish.addEventListener('click', () => {
+      //INIZIO SOSTITUZIONE LOGICA SUPABASE E ARTICOLI 
+      // Utility per caricare immagini su Supabase Storage
+      async function uploadImage(file) {
+        const fileName = `${Date.now()}_${file.name}`;
+        const { data, error } = await supabase.storage
+          .from('uploads')
+          .upload(fileName, file);
+        if (error) {
+          alert('Errore upload immagine: ' + error.message);
+          return null;
+        }
+        const { data: publicURL } = supabase.storage
+          .from('uploads')
+          .getPublicUrl(fileName);
+        return publicURL.publicUrl;
+      }
+
+      // Salva articolo su Supabase e restituisce l'ID inserito
+      async function saveArticle(article) {
+        // Genera sempre un ID se mancante o vuoto per evitare violazione NOT NULL
+        const ensuredId = article?.id && String(article.id).trim() !== '' ? String(article.id) : (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+        const payload = {
+          id: ensuredId, // id sempre valorizzato
+          title: article.title,
+          content: article.content,
+          category: article.category,
+          author: article.author,
+          excerpt: article.excerpt,
+          publishDate: article.date,
+          readTime: article.readTime,
+          section: article.section,
+          preview_image_url: article.mainImage || ''
+        };
+
+        // Usa upsert per evitare errori di chiave duplicata
+        const { data, error } = await supabase
+          .from('articoli')
+          .upsert([payload], { onConflict: ['id'] })
+          .select('id')
+          .single();
+        if (error) {
+          alert('Errore salvataggio: ' + error.message);
+          return null;
+        }
+        return data?.id || ensuredId || null;
+      }
+
+      // Carica articoli da Supabase
+      async function loadArticles(section) {
+        const { data, error } = await supabase
+          .from('articoli')
+          .select('*')
+          .eq('section', section)
+          .order('created_at', { ascending: false });
+        if (error) {
+          alert('Errore caricamento articoli: ' + error.message);
+          return [];
+        }
+        return data;
+      }
+
+      // Elimina articolo da Supabase
+      async function deleteArticle(id) {
+        const { error } = await supabase.from('articoli').delete().eq('id', id);
+        if (error) alert('Errore eliminazione: ' + error.message);
+      }
+
+      // 🔁 Modifica l’evento click del pulsante "Pubblica"
+      document.getElementById('article-publish').addEventListener('click', async () => {
+        const article = {
+          title: document.getElementById('article-title').value.trim(),
+          content: document.getElementById('editor').innerHTML.trim(),
+          category: document.getElementById('article-category').value,
+          author: document.getElementById('article-author').value.trim(),
+          excerpt: document.getElementById('article-excerpt').value.trim() || generateExcerpt(document.getElementById('editor').innerHTML),
+          date: new Date().toLocaleDateString('it-IT'),
+          readTime: calculateReadTime(document.getElementById('editor').innerHTML),
+          section: document.getElementById('article-section').value,
+          mainImage: mainArticleImage?.src || ''
+        };
+        if (!article.title || !article.content) {
+          alert('Titolo e contenuto sono obbligatori.');
+          return;
+        }
+        const insertedId = await saveArticle(article);
+        if (insertedId) {
+          // Salva ultimo ID pubblicato e reindirizza alla home del blog con query param
+          localStorage.setItem('lastArticleId', String(insertedId));
+          window.location.href = '../blog user/i.html?articleId=' + encodeURIComponent(String(insertedId));
+        }
+      });
+
+      // 🔁 Gestione upload immagini
+      document.getElementById('file-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = await uploadImage(file);
+        if (url) {
+          currentImageSrc = url;
+          document.getElementById('preview-image').src = url;
+          document.getElementById('file-preview').classList.remove('hidden');
+        }
+      });
+
+      // 🔁 Carica articoli nel modal "Gestisci"
+      document.getElementById('manage-articles-btn').addEventListener('click', async () => {
+        const blogArticles = await loadArticles('blog');
+        const portfolioArticles = await loadArticles('portfolio');
+        document.getElementById('blog-count').textContent = blogArticles.length;
+        document.getElementById('portfolio-count').textContent = portfolioArticles.length;
+        renderArticlesList(blogArticles, 'blog');
+        document.getElementById('manage-modal').classList.remove('hidden');
+      });
+
+      function renderArticlesList(articles, section) {
+        const container = document.getElementById('articles-list');
+        container.innerHTML = '';
+        if (articles.length === 0) {
+          document.getElementById('no-articles').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('no-articles').classList.add('hidden');
+        articles.forEach(article => {
+          const div = document.createElement('div');
+          div.className = 'bg-[#121212] rounded-lg p-4 border border-gray-700';
+          div.innerHTML = `
+      <h3 class="text-white font-semibold mb-2">${article.title}</h3>
+      <div class="flex gap-2 mb-2">
+        <span class="bg-teal-500 text-black px-2 py-1 rounded text-xs">${article.category}</span>
+        <span class="bg-gray-600 text-white px-2 py-1 rounded text-xs">${article.publishDate}</span>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button class="text-red-500 hover:text-red-400" onclick="deleteArticle('${article.id}')">Elimina</button>
+      </div>
+    `;
+          container.appendChild(div);
+        });
+      }
+
+      // 🔁 Utility
+      function generateExcerpt(html) {
+        const text = html.replace(/<[^>]+>/g, '');
+        return text.substring(0, 150) + (text.length > 150 ? '...' : '');
+      }
+
+      function calculateReadTime(html) {
+        const text = html.replace(/<[^>]+>/g, '');
+        const words = text.split(/\s+/).length;
+        return Math.ceil(words / 200) + ' min';
+      }
+      // --- FINE SOSTITUZIONE LOGICA SUPABASE E ARTICOLI ---
+    });
+
+    // Utility functions
+    function generateExcerpt(content) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      const text = tempDiv.textContent || tempDiv.innerText || '';
+      return text.substring(0, 150) + (text.length > 150 ? '...' : '');
+    }
+
+    function calculateReadTime(content) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      const text = tempDiv.textContent || tempDiv.innerText || '';
+      const wordsPerMinute = 200;
+      const words = text.split(/\s+/).length;
+      const minutes = Math.ceil(words / wordsPerMinute);
+      return minutes + ' min di lettura';
+    }
+
+    function saveArticle(article, section) {
+      // Save to the appropriate section
+      const storageKey = section === 'portfolio' ? 'portfolioArticles' : 'blogArticles';
+      let articles = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      articles.unshift(article); // Add to beginning of array
+      localStorage.setItem(storageKey, JSON.stringify(articles));
+
+      console.log(`Article saved to ${section}:`, article);
+
+      // Emit custom event to notify other windows/tabs about the new article
+      window.dispatchEvent(new CustomEvent('articlesUpdated', {
+        detail: {
+          action: 'published',
+          article: article,
+          section: section,
+          storageKey: storageKey
+        }
+      }));
+
+      // Try to notify other windows if possible
+      try {
+        // Broadcast to other tabs using BroadcastChannel if available
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('blog-updates');
+          channel.postMessage({
+            type: 'articlePublished',
+            article: article,
+            section: section
+          });
+          channel.close();
+        }
+      } catch (e) {
+        console.log('BroadcastChannel not available:', e);
+      }
+    }
+
+    // Article management functionality
+    const manageArticlesBtn = document.getElementById('manage-articles-btn');
+    const manageModal = document.getElementById('manage-modal');
+    const manageClose = document.getElementById('manage-close');
+    const blogTab = document.getElementById('blog-tab');
+    const portfolioTab = document.getElementById('portfolio-tab');
+    const articlesList = document.getElementById('articles-list');
+    const noArticles = document.getElementById('no-articles');
+    const blogCount = document.getElementById('blog-count');
+    const portfolioCount = document.getElementById('portfolio-count');
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteCancel = document.getElementById('delete-cancel');
+    const deleteConfirm = document.getElementById('delete-confirm');
+
+    let currentSection = 'blog';
+    let articleToDelete = null;
+
+    // Open manage articles modal
+    manageArticlesBtn.addEventListener('click', () => {
+      manageModal.classList.remove('hidden');
+      loadArticles('blog');
+      updateCounts();
+    });
+
+    // Close manage modal
+    manageClose.addEventListener('click', () => {
+      manageModal.classList.add('hidden');
+    });
+
+    // Tab switching
+    blogTab.addEventListener('click', () => {
+      switchTab('blog');
+    });
+
+    portfolioTab.addEventListener('click', () => {
+      switchTab('portfolio');
+    });
+
+    function switchTab(section) {
+      currentSection = section;
+
+      // Update tab appearance
+      if (section === 'blog') {
+        blogTab.classList.add('bg-[#14b8a6]', 'text-black');
+        blogTab.classList.remove('text-gray-400');
+        portfolioTab.classList.remove('bg-[#14b8a6]', 'text-black');
+        portfolioTab.classList.add('text-gray-400');
+      } else {
+        portfolioTab.classList.add('bg-[#14b8a6]', 'text-black');
+        portfolioTab.classList.remove('text-gray-400');
+        blogTab.classList.remove('bg-[#14b8a6]', 'text-black');
+        blogTab.classList.add('text-gray-400');
+      }
+
+      loadArticles(section);
+    }
+
+    function updateCounts() {
+      const blogArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
+      const portfolioArticles = JSON.parse(localStorage.getItem('portfolioArticles') || '[]');
+
+      blogCount.textContent = blogArticles.length;
+      portfolioCount.textContent = portfolioArticles.length;
+    }
+
+    function loadArticles(section) {
+      const storageKey = section === 'portfolio' ? 'portfolioArticles' : 'blogArticles';
+      const articles = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+      articlesList.innerHTML = '';
+
+      if (articles.length === 0) {
+        noArticles.classList.remove('hidden');
+        return;
+      }
+
+      noArticles.classList.add('hidden');
+
+      articles.forEach((article, index) => {
+        const articleElement = createArticleElement(article, index, section);
+        articlesList.appendChild(articleElement);
+      });
+    }
+
+    function createArticleElement(article, index, section) {
+      const div = document.createElement('div');
+      div.className = 'bg-[#121212] rounded-lg p-4 border border-gray-700';
+
+      div.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h3 class="text-white font-semibold text-lg mb-2">${article.title}</h3>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span class="bg-[#14b8a6] text-black px-2 py-1 rounded text-xs font-medium">${article.category}</span>
+              <span class="bg-gray-600 text-white px-2 py-1 rounded text-xs">${article.date}</span>
+              <span class="bg-gray-600 text-white px-2 py-1 rounded text-xs">${article.readTime}</span>
+            </div>
+            <p class="text-gray-300 text-sm mb-2">Di: ${article.author}</p>
+            <p class="text-gray-400 text-sm">${article.excerpt}</p>
+          </div>
+          <div class="flex space-x-2 ml-4">
+            <button
+              class="edit-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors duration-200"
+              data-index="${index}"
+              data-section="${section}"
+              title="Modifica articolo"
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+            <button
+              class="delete-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors duration-200"
+              data-index="${index}"
+              data-section="${section}"
+              title="Elimina articolo"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Add event listeners
+      const editBtn = div.querySelector('.edit-btn');
+      const deleteBtn = div.querySelector('.delete-btn');
+
+      editBtn.addEventListener('click', () => {
+        editArticle(article, index, section);
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        showDeleteConfirmation(article, index, section);
+      });
+
+      return div;
+    }
+
+    function editArticle(article, index, section) {
+      // Load article content into editor
+      editor.innerHTML = article.content;
+      articleTitle.value = article.title;
+      articleSection.value = section;
+      articleSection.dispatchEvent(new Event('change'));
+      articleCategory.value = article.category;
+      articleAuthor.value = article.author;
+      articleExcerpt.value = article.excerpt;
+
+      // Close manage modal
+      manageModal.classList.add('hidden');
+
+      // Remove the old article from storage
+      deleteArticle(index, section, false);
+
+      alert('Articolo caricato nell\'editor per la modifica. Ricorda di ripubblicarlo dopo le modifiche.');
+    }
+
+    function showDeleteConfirmation(article, index, section) {
+      articleToDelete = { article, index, section };
+      deleteModal.classList.remove('hidden');
+    }
+
+    function deleteArticle(index, section, showAlert = true) {
+      const storageKey = section === 'portfolio' ? 'portfolioArticles' : 'blogArticles';
+      let articles = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+      articles.splice(index, 1);
+      localStorage.setItem(storageKey, JSON.stringify(articles));
+
+      if (showAlert) {
+        alert('Articolo eliminato con successo!');
+      }
+
+      // Refresh the articles list and counts
+      loadArticles(currentSection);
+      updateCounts();
+    }
+
+    // Delete confirmation modal handlers
+    deleteCancel.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+      articleToDelete = null;
+    });
+
+    deleteConfirm.addEventListener('click', () => {
+      if (articleToDelete) {
+        deleteArticle(articleToDelete.index, articleToDelete.section);
+        deleteModal.classList.add('hidden');
+        articleToDelete = null;
+      }
+    });
+
+    // Close modals when clicking outside
+    manageModal.addEventListener('click', (e) => {
+      if (e.target === manageModal) {
+        manageModal.classList.add('hidden');
+      }
+    });
+
+    deleteModal.addEventListener('click', (e) => {
+      if (e.target === deleteModal) {
+        deleteModal.classList.add('hidden');
+        articleToDelete = null;
+      }
+    });
+
+    // Dark/Light mode toggle
+    const modeToggle = document.getElementById('mode-toggle');
+    const body = document.body;
+    const editorContainer = document.getElementById('editor-container');
+
+    function setLightMode() {
+      body.classList.remove('bg-[#0a0a0a]', 'text-white');
+      body.classList.add('bg-white', 'text-gray-900');
+      editorContainer.classList.remove('bg-gradient-to-r', 'from-[#1e1e1e]', 'to-[#2a2a2a]');
+      editorContainer.classList.add('bg-white', 'shadow-lg');
+      editor.style.backgroundColor = '#f9fafb';
+      editor.style.color = '#111827';
+      editor.style.boxShadow = 'inset 0 0 8px rgb(0 0 0 / 0.1)';
+      body.style.setProperty('--scrollbar-thumb', '#14b8a6');
+      body.style.setProperty('--scrollbar-track', '#e5e7eb');
+      modeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    function setDarkMode() {
+      body.classList.remove('bg-white', 'text-gray-900');
+      body.classList.add('bg-[#0a0a0a]', 'text-white');
+      editorContainer.classList.remove('bg-white', 'shadow-lg');
+      editorContainer.classList.add('bg-gradient-to-r', 'from-[#1e1e1e]', 'to-[#2a2a2a]');
+      editor.style.backgroundColor = '#121212';
+      editor.style.color = '#fff';
+      editor.style.boxShadow = 'inset 0 0 10px rgb(0 0 0 / 0.6)';
+      body.style.setProperty('--scrollbar-thumb', '#14b8a6');
+      body.style.setProperty('--scrollbar-track', '#1e1e1e');
+      modeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+
+    // Initialize dark mode by default
+    let darkMode = true;
+    setDarkMode();
+
+    modeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      if (darkMode) {
+        setDarkMode();
+      } else {
+        setLightMode();
+      }
+    });
+
+    // Keyboard shortcuts for formatting
+    editor.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'b':
+            e.preventDefault();
+            document.execCommand('bold');
+            break;
+          case 'i':
+            e.preventDefault();
+            document.execCommand('italic');
+            break;
+          case 'u':
+            e.preventDefault();
+            document.execCommand('underline');
+            break;
+          case 'z':
+            e.preventDefault();
+            document.execCommand('undo');
+            break;
+          case 'y':
+            e.preventDefault();
+            document.execCommand('redo');
+            break;
+        }
+      }
+    });
+
+    // Placeholder for contenteditable
+    function updatePlaceholder() {
+      if (editor.textContent.trim() === '') {
+        editor.classList.add('before:content-[attr(data-placeholder)]', 'before:text-gray-500', 'before:absolute', 'before:top-5', 'before:left-5', 'before:pointer-events-none');
+      } else {
+        editor.classList.remove('before:content-[attr(data-placeholder)]', 'before:text-gray-500', 'before:absolute', 'before:top-5', 'before:left-5', 'before:pointer-events-none');
+      }
+    }
+    // Using a data attribute for placeholder text
+    editor.setAttribute('data-placeholder');
+    updatePlaceholder();
+    editor.addEventListener('input', updatePlaceholder);
+
+    // Nuovo codice per gestire il form articolo
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('articoloForm');
+      const messageBox = document.getElementById('messageBox');
+
+      // Funzione per mostrare un messaggio all'utente
+      function showMessage(message, type = 'success') {
+        messageBox.textContent = message;
+        messageBox.className = `mt-4 p-4 rounded-md text-sm text-center ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        messageBox.style.display = 'block';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Previene il ricaricamento della pagina
+
+        // Prepara l'oggetto dati dell'articolo
+        const articolo = {
+          //  PASSO FONDAMENTALE: Genera un ID univoco qui! 
+          // Questo risolve l'errore "null value in column 'id'"
+          id: crypto.randomUUID(),
+
+          title: document.getElementById('title').value,
+          content: document.getElementById('content').value,
+          author: document.getElementById('author').value,
+          category: document.getElementById('category').value,
+          // Aggiungi qui gli altri campi del tuo form
+          // ...
+        };
+
+        // Aggiungi un messaggio di caricamento
+        showMessage('Salvataggio in corso...', 'info');
+
+        try {
+          // Simula una chiamata API (sostituisci con il tuo endpoint)
+          console.log('Invio al server il seguente oggetto:', articolo);
+
+          // Esempio di una richiesta fetch (sostituisci con la tua logica)
+          // const response = await fetch('/api/articoli', {
+          //     method: 'POST',
+          //     headers: {
+          //         'Content-Type': 'application/json',
+          //     },
+          //     body: JSON.stringify(articolo),
+          // });
+
+          // const result = await response.json();
+
+          // if (response.ok) {
+          //     showMessage(`Articolo "${articolo.title}" salvato con successo!`, 'success');
+          //     form.reset(); // Resetta il form dopo il salvataggio
+          // } else {
+          //     throw new Error(result.error || 'Errore durante il salvataggio.');
+          // }
+
+          // Per questo esempio, simuliamo un successo dopo un breve ritardo
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          showMessage(`Articolo "${articolo.title}" salvato con successo! (ID: ${articolo.id})`, 'success');
+          form.reset();
+
+        } catch (error) {
+          console.error('Errore durante il salvataggio:', error);
+          showMessage(`Errore salvataggio: ${error.message}`, 'error');
+        }
+      });
+    });
+  </script>
+
+
+<script type="module">
+  import { syncArticlesToHTML } from './supabase-sync.js';
+
+  // Sincronizza gli articoli quando la pagina è caricata
+  document.addEventListener('DOMContentLoaded', syncArticlesToHTML);
+
+  // Sincronizza gli articoli dopo la pubblicazione di un nuovo articolo
+  document.getElementById('article-publish').addEventListener('click', async () => {
+    // Logica per pubblicare l'articolo...
+
+    // Dopo la pubblicazione, sincronizza gli articoli
+    await syncArticlesToHTML();
+  });
+</script>
+
+
+
+</body>
+
+</html>
